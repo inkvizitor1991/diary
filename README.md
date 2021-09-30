@@ -15,25 +15,10 @@ $ python get_statistics.py
 ```
 2) Скопируйте и запустите:
 ```
-import random
-
-from django.http import Http404
-from django.core.exceptions import ObjectDoesNotExist
-
-from datacenter.models import (
-    Schoolkid,
-    Mark,
-    Chastisement,
-    Lesson,
-    Commendation
-)
-
 from scripts import (
-    get_diary,
-    get_class_name,
+    get_schoolkid,
     fix_marks,
     remove_chastisements,
-    find_lesson,
     create_commendation
 )
 ```
@@ -46,24 +31,24 @@ subject = 'Физкультура'
 
 4) Последний шаг. Исправляем оценки, получаем похвалу, удаляем замечания!
 
-Необходимо получить дневник (без него никак).
+Находим школьника:
 ```
-diary = get_diary(name)
+schoolkid = get_schoolkid(name)
 
 ```
 Исправляем оценки на 4, 5:
 ```
-fix_marks(diary)
+fix_marks(schoolkid)
 
 ```
 Удаляем замечания:
 ```
-remove_chastisements(diary)
+remove_chastisements(schoolkid)
 
 ```
 Создаем похвалу:
 ```
-create_commendation(diary, subject)
+create_commendation(schoolkid, subject)
 ```
 ## Цели проекта
 
