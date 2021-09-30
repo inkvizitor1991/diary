@@ -12,7 +12,7 @@ from datacenter.models import (
 )
 
 
-def create_commendation(diary, subject):
+def create_commendation(schoolkid, subject):
     commendations = [
         'Молодец!',
         'Отлично!',
@@ -45,10 +45,10 @@ def create_commendation(diary, subject):
         'Ты многое сделал, я это вижу!',
         'Теперь у тебя точно все получится!',
     ]
-    lesson, lesson_date, teacher = find_lesson(subject)
+    lesson, lesson_date, teacher = find_lesson(subject, schoolkid)
     random_commendation = random.choice(commendations)
-    created_commendation = Commendation.objects.create(
-        schoolkid=diary,
+    Commendation.objects.create(
+        schoolkid=schoolkid,
         teacher=teacher,
         subject=lesson,
         created=lesson_date,
@@ -56,25 +56,25 @@ def create_commendation(diary, subject):
     )
 
 
-def get_class_name(diary):
-    year_of_study = diary.year_of_study
-    group_letter = diary.group_letter
+def get_class_name(schoolkid):
+    year_of_study = schoolkid.year_of_study
+    group_letter = schoolkid.group_letter
     return year_of_study, group_letter
 
 
-def fix_marks(diary):
-    child_diary = Mark.objects.filter(schoolkid=diary)
-    marks = Mark.objects.filter(schoolkid=diary, points__lt=4).update(points=5)
+def fix_marks(schoolkid):
+    Mark.objects.filter(schoolkid=schoolkid)
+    Mark.objects.filter(schoolkid=schoolkid, points__lt=4).update(points=5)
 
 
-def remove_chastisements(diary):
-    chastisements = Chastisement.objects.filter(schoolkid=diary)
+def remove_chastisements(schoolkid):
+    chastisements = Chastisement.objects.filter(schoolkid=schoolkid)
     chastisements.delete()
 
 
-def find_lesson(subject):
+def find_lesson(subject, schoolkid):
     try:
-        year_of_study, group_letter = get_class_name(diary)
+        year_of_study, group_letter = get_class_name(schoolkid)
         lessons = Lesson.objects.filter(
             group_letter__contains=group_letter,
             year_of_study__contains=year_of_study,
@@ -90,12 +90,12 @@ def find_lesson(subject):
         raise Http404('Проверьте правильность ввода')
 
 
-def get_diary(name):
+def get_schoolkid(name):
     try:
-        diary = Schoolkid.objects.get(full_name__contains=name)
+        schoolkid = Schoolkid.objects.get(full_name__contains=name)
     except Schoolkid.DoesNotExist:
         raise Http404('Проверьте правильность ввода')
-    return diary
+    return schoolkid
 
 
 
