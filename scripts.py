@@ -1,7 +1,9 @@
 import random
 
-from django.http import Http404
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    MultipleObjectsReturned
+)
 
 from datacenter.models import (
     Schoolkid,
@@ -73,32 +75,29 @@ def remove_chastisements(schoolkid):
 
 
 def find_lesson(subject, schoolkid):
-    try:
-        year_of_study, group_letter = get_class_name(schoolkid)
-        lessons = Lesson.objects.filter(
-            group_letter__contains=group_letter,
-            year_of_study__contains=year_of_study,
-            subject__title=subject
-        ).order_by('date')
-        first_lesson = lessons.first()
-        if first_lesson:
-            lesson = first_lesson.subject
-            lesson_date = first_lesson.date
-            teacher = first_lesson.teacher
-            return lesson, lesson_date, teacher
-    except Schoolkid.DoesNotExist:
-        raise Http404('Проверьте правильность ввода')
+    year_of_study, group_letter = get_class_name(schoolkid)
+    lessons = Lesson.objects.filter(
+        group_letter__contains=group_letter,
+        year_of_study__contains=year_of_study,
+        subject__title=subject
+    ).order_by('date')
+    first_lesson = lessons.first()
+    if first_lesson:
+        lesson = first_lesson.subject
+        lesson_date = first_lesson.date
+        teacher = first_lesson.teacher
+        return lesson, lesson_date, teacher
+    else:
+        raise ValueError('Проверьте правильно ли указан предмет.')
 
 
 def get_schoolkid(name):
     try:
         schoolkid = Schoolkid.objects.get(full_name__contains=name)
     except Schoolkid.DoesNotExist:
-        raise Http404('Проверьте правильность ввода')
+        print('Проверьте правильность ввода инициалов.')
+        return None
+    except Schoolkid.MultipleObjectsReturned:
+        print('Найдено несколько человек.')
+        return None
     return schoolkid
-
-
-
-
-
-
